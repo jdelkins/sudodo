@@ -1,0 +1,28 @@
+#!/usr/bin/zsh
+
+case $0 in
+	(*sudodo)
+		echo "Don't run this directly, synlink a real program name to this"
+		exit 1
+		;;
+esac
+
+candidates=($(where $(basename $0)))
+typeset exe
+
+# search for first executable not linked to sudodo
+for c in $candidates; do
+	if [[ -L $c && $(readlink $c) =~ 'sudodo$' ]]; then
+		continue
+	fi
+	exe=$c
+	break
+done
+
+if [[ $exe == '' || ! -x $(which $exe) ]]; then
+	echo "The invoked program does not appear to exist"
+	exit 1
+fi
+
+sudo $exe "$@"
+
